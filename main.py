@@ -1,0 +1,1 @@
+from config.env import BOT_TOKEN, GEMINI_API_KEY
