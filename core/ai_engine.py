@@ -1,4 +1,4 @@
-from config.env import GEMINI_API_KEY 
+from config.env import GEMINI_API_KEY
 import requests
 import json
 
@@ -19,7 +19,7 @@ class Aibrain:
             Always start with "action".
             If data is missing, ask for it in "answer".
             No explanations outside JSON."""
-    def user_prompt(self, user_prompt):
+    def full_prompt(self, user_prompt):
         self.user_prompt = user_prompt
         total_prompt = self.system_prompt + self.user_prompt
         payload = {
@@ -40,8 +40,8 @@ class Aibrain:
                 action_response = full_response['candidates'][0]['content']['parts'][0]['text']
                 action_json = json.loads(action_response)
                 return action_json
-            except (json.JSONDecodeErrorб KeyErrorm, IndexError) as e:
+            except (json.JSONDecodeError, KeyError, IndexError) as e:
                 raise ValueError("An error occurred while decoding the response.")
         else:
             raise ValueError(f"An error occurred: {bot_request.status_code} - {bot_request.text}")
-user_prompt = Aibrain()
+send_prompt = Aibrain()
