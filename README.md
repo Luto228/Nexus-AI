@@ -10,12 +10,12 @@
 Nexus-AI is a Python-based AI project. Right now, only the brain — the core AI engine — is implemented. This version is focused on the logic and reasoning layer of the system.
 
 ## Current State
-- **Implemented:** core AI engine (the brain), chat functionality
-- **Working:** The bot can understand and respond to chat messages
-- **Not implemented yet:** reminders, database persistence, and memory handling
+- **Implemented:** core AI engine (the brain), chat functionality, reminder scheduling
+- **Working:** The bot can understand and respond to chat messages and create reminders from your request
+- **Not implemented yet:** database persistence and memory handling
 
 ## Next Update
-- Enhanced reminder functionality
+- Enhanced reminder functionality and reminder parsing
 - Database integration for data persistence
 
 ## Future Updates

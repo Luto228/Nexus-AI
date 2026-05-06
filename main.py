@@ -20,13 +20,13 @@ async def check_reminders():
         current_time = datetime.datetime.now().strftime("%H:%M")
         fetchall_pending = get_status()
         for user_pending in fetchall_pending:
-            id = user_pending[0]
+            reminder_id = user_pending[0]
             user_id = user_pending[1]
             time = user_pending[2]
             task = user_pending[3]
             if time == current_time:
                 await bot.send_message(user_id, f"Reminder: {task}!")
-                update_status(id)
+                update_status(reminder_id)
         await asyncio.sleep(60)
 
 async def main():
