@@ -1,4 +1,4 @@
-import SQlite3
+import sqlite3
 
 db = sqlite3.connect('reminder.db')
 cursor = db.cursor()
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS reminders (
     time TEXT NOT NULL,
     task TEXT NOT NULL,
     status TEXT DEFAULT 'pending'
-    ''')
+    )''')
 
 def add_reminder(user_id, time, task):
     cursor.execute("INSERT INTO reminders (user_id, time, task) VALUES (?, ?, ?)", (user_id, time, task))
