@@ -5,6 +5,7 @@ __pycache__/
 env.py
 test.py
 __pycache__/.
+reminder.db
 # C extensions
 *.so
 
