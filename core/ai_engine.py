@@ -35,8 +35,7 @@ class Aibrain:
         date_context = f"Current date and time: {now.strftime('%Y-%m-%d %H:%M, %A')}\n"
         
         total_prompt = f"{date_context}\n{self.system_prompt}\n\nUser message: {user_prompt}"
-        
-        # Асинхронный вызов Gemini
+
         response = await self.model.generate_content_async(total_prompt)
         
         try:
