@@ -1,63 +1,47 @@
-import requests
-import json
 import datetime
+import json
+import google.generativeai as genai
 from config.env import GEMINI_API_KEY
 
 class Aibrain:
     def __init__(self):
-        self.model_name = 'gemini-2.0-flash'
-        self.version = 'v1beta'
-        self.api_key = GEMINI_API_KEY
-        self.url = f'https://generativelanguage.googleapis.com/{self.version}/models/{self.model_name}:generateContent?key={self.api_key}'
+        genai.configure(api_key=GEMINI_API_KEY)
+        self.model = genai.GenerativeModel(
+            model_name='gemini-2.5-flash',
+            generation_config={"response_mime_type": "application/json"}
+        )
 
-        self.system_prompt = """Understand what exactly the message is about options:
-    Structure:
-        "Chat": {"action": "chat", "answer": "text"},
-        "Reminder": {"action": "reminder", "target": "task", "time": "HH:MM", "answer": "text"},
-        "Database": {"action": "database", "type": "expense/income/fact", "value": "val", "category": "cat", "answer": "text"},
-        "Error": {"action": "Error", "type": "Logical/Impossible", "solution": "text"}
+        self.system_prompt = """You are a helpful assistant. Understand the user's intent and return ONLY a JSON object.
+    Options:
+    - If user just wants to talk (e.g., "hi", "how are you", "привет"):
+      {"action": "chat", "answer": "your friendly response here"}
+      
+    - If user wants to set a reminder (e.g., "remind me to drink water at 5pm"):
+      {"action": "reminder", "target": "task description", "time": "HH:MM", "answer": "Confirmation message"}
+      
+    - If user talks about money/facts (e.g., "spent 5$ on coffee"):
+      {"action": "database", "type": "expense/income/fact", "value": "val", "category": "cat", "answer": "Confirmation message"}
 
     Rules:
-        1. Always start with "action".
-        2. "time" must ALWAYS be in HH:MM format.
-        3. If the user mentions a day/date but NOT a specific time, set "time" to "12:00" by default.
-        4. If the user uses relative words (tomorrow, next Monday, in 2 hours), calculate the result HH:MM based on the Current date and time provided above.
-        5. If data is missing (e.g., no task or no date/time at all), ask for it in "answer".
-        6. No explanations outside JSON.
+    1. ALWAYS return valid JSON. No markdown, no "```json".
+    2. If the message is a simple greeting or talk, ALWAYS use "action": "chat".
+    3. Use "time" format HH:MM. Default time is 12:00.
+    4. Current date context is provided above. Calculate relative times correctly.
+    5. If you truly don't understand, use "action": "chat" and ask for clarification in "answer" instead of returning an error.
 """
 
-    def full_prompt(self, user_prompt):
+    async def full_prompt(self, user_prompt):
         now = datetime.datetime.now()
         date_context = f"Current date and time: {now.strftime('%Y-%m-%d %H:%M, %A')}\n"
         
-        total_prompt = date_context + self.system_prompt + "\nUser message: " + user_prompt
+        total_prompt = f"{date_context}\n{self.system_prompt}\n\nUser message: {user_prompt}"
         
-        payload = {
-            "contents": [
-                {
-                    "parts": [{"text": total_prompt}]
-                }
-            ]
-        }
+        # Асинхронный вызов Gemini
+        response = await self.model.generate_content_async(total_prompt)
         
-        print(f"DEBUG URL: |{self.url}|") 
-        print(f"DEBUG PAYLOAD: {json.dumps(payload, indent=2)}")
-
-        headers = {'Content-Type': 'application/json'}
-
-        bot_request = requests.post(self.url, json=payload, headers=headers)
-        
-        if bot_request.status_code == 200:
-            try:
-                full_response = bot_request.json()
-                action_response = full_response['candidates'][0]['content']['parts'][0]['text']
-                
-                clean_json = action_response.replace('```json', '').replace('```', '').strip()
-                
-                return json.loads(clean_json)
-            except (json.JSONDecodeError, KeyError, IndexError) as e:
-                raise ValueError(f"AI processing error: {e}")
-        else:
-            raise ValueError(f"An error occurred: {bot_request.status_code} - {bot_request.text}")
+        try:
+            return json.loads(response.text)
+        except (json.JSONDecodeError, AttributeError) as e:
+            raise ValueError(f"AI JSON error: {e} | Raw: {response.text}")
 
 send_prompt = Aibrain()
