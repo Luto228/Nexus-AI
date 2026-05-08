@@ -1,36 +1,37 @@
 import asyncio
-import json
 import datetime
-
-from aiogram import Bot, Dispatcher
-from aiogram import types
+from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
-from aiogram.filters import Command
 from aiogram.types import Message
 
 from config.env import BOT_TOKEN
 from core.ai_engine import send_prompt
-from services.reminder_service import add_reminder, get_status, update_status
+from services.reminder_service import add_reminder, get_pending_reminders, update_status, init_db
 
-bot = Bot(token = BOT_TOKEN)
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 async def check_reminders():
     while True:
         current_time = datetime.datetime.now().strftime("%H:%M")
-        fetchall_pending = get_status()
-        for user_pending in fetchall_pending:
-            reminder_id = user_pending[0]
-            user_id = user_pending[1]
-            time = user_pending[2]
-            task = user_pending[3]
-            if time == current_time:
-                await bot.send_message(user_id, f"Reminder: {task}!")
-                update_status(reminder_id)
-        await asyncio.sleep(60)
+        pending_reminders = await get_pending_reminders()
+        
+        for r_id, u_id, r_time, r_task in pending_reminders:
+            if r_time == current_time:
+                try:
+                    await bot.send_message(u_id, f"Reminder: {r_task}!")
+                    await update_status(r_id)
+                except Exception as e:
+                    print(f"Send error: {e}")
+        
+        await asyncio.sleep(30)
 
 async def main():
+    await init_db()
+    
     asyncio.create_task(check_reminders())
+    
+    print("Bot is starting...")
     await dp.start_polling(bot)
 
 @dp.message(CommandStart())
@@ -38,33 +39,37 @@ async def start(message: Message):
     await message.answer("Hello! I'm your personal assistant. How can I help you today?")
 
 @dp.message()
-async def send_message(message: Message):
+async def handle_message(message: Message):
     try:
-        response = send_prompt.full_prompt(message.text)
-        action = response.get("action", "please retry again with a clear prompt.")
-        answer = response.get("answer", "No answer provided.")
-    except Exception as e:
-        await message.answer(f"Error: {e}")
-        return
-    if action == "chat":
-        await message.answer(answer)
-    elif action == "reminder":
-        await message.answer(answer)
-        try:
-            add_reminder(user_id=message.from_user.id, time = response.get("time", "No time provided"), task = response.get("target", "No task provided"))
-        except Exception as e:
-            await message.answer(f"Error: {e}")
-            return
-    elif action == "database":
-        await message.answer(answer)
-        try:
-            print("Nothing for now")
-        except Exception as e:
-            await message.answer(f"Error: {e}")
-            return
+        response = await send_prompt.full_prompt(message.text)
         
+        action = response.get("action", "Error")
+        answer = response.get("answer", "No answer provided.")
+
+        if action == "chat":
+            await message.answer(answer)
+            
+        elif action == "reminder":
+            time = response.get("time", "12:00")
+            task = response.get("target", "Task")
+            
+            await add_reminder(user_id=message.from_user.id, time=time, task=task)
+            await message.answer(answer)
+            
+        elif action == "database":
+            await message.answer(answer)
+            print("Database action requested")
+            
+        elif action == "Error":
+            solution = response.get("solution", "Please try again with a clearer prompt.")
+            await message.answer(f"Error: {solution}")
+
+    except Exception as e:
+        await message.answer(f"An error occurred: {e}")
+
 if __name__ == '__main__':
-    try: 
+    try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print('Exit') 
+        print('Exit')
+    
