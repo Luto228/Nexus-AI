@@ -22,10 +22,10 @@ async def add_reminder(user_id, time, task):
         )
         await db.commit()
 
-async def get_pending_reminders():
+async def get_pending_reminders(current_time):
     async with aiosqlite.connect(DB_PATH) as db:
-        async with db.execute("SELECT id, user_id, time, task FROM reminders WHERE status = 'pending'") as cursor:
-            return await cursor.fetchall()
+        async with db.execute("SELECT id, user_id, time, task FROM reminders WHERE status = 'pending' and time <= ?", (current_time,)) as cursor:
+           return await cursor.fetchall()
 
 async def update_status(reminder_id):
     async with aiosqlite.connect(DB_PATH) as db:
