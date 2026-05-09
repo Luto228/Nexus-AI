@@ -7,7 +7,7 @@ class Aibrain:
     def __init__(self):
         genai.configure(api_key=GEMINI_API_KEY)
         self.model = genai.GenerativeModel(
-            model_name='gemini-2.5-flash',
+            model_name='gemini-3.1-flash-lite',
             generation_config={"response_mime_type": "application/json"}
         )
 
