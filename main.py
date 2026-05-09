@@ -14,15 +14,14 @@ dp = Dispatcher()
 async def check_reminders():
     while True:
         current_time = datetime.datetime.now().strftime("%H:%M")
-        pending_reminders = await get_pending_reminders()
+        pending_reminders = await get_pending_reminders(current_time)
         
         for r_id, u_id, r_time, r_task in pending_reminders:
-            if r_time == current_time:
-                try:
-                    await bot.send_message(u_id, f"Reminder: {r_task}!")
-                    await update_status(r_id)
-                except Exception as e:
-                    print(f"Send error: {e}")
+            try:
+                await bot.send_message(u_id, f"Reminder: {r_task}!")
+                await update_status(r_id)
+            except Exception as e:
+                print(f"Send error: {e}")
         
         await asyncio.sleep(30)
 
