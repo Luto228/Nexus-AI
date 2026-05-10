@@ -7,6 +7,7 @@ from aiogram.types import Message
 from config.env import BOT_TOKEN
 from core.ai_engine import send_prompt
 from services.reminder_service import add_reminder, get_pending_reminders, update_status, init_db
+from services.database_service import init_db as init_bd_service, add_record, get_record
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -27,9 +28,10 @@ async def check_reminders():
 
 async def main():
     await init_db()
+    await init_bd_service()
     
     asyncio.create_task(check_reminders())
-    
+
     print("Bot is starting...")
     await dp.start_polling(bot)
 
@@ -56,8 +58,18 @@ async def handle_message(message: Message):
             await message.answer(answer)
             
         elif action == "database":
+            user_id = message.from_user.id
+            type = response.get("type", "unknown")
+            value = response.get("value", 0)
+            category = response.get("category", 'other')
+            await add_record(user_id, type, value, category)
             await message.answer(answer)
-            print("Database action requested")
+        elif action == "database_query":
+            user_id = message.from_user.id
+            type = response.get("type", "unknown")
+            category = response.get("category", "other")
+            result = await get_record(user_id, type, category)
+            await message.answer(f"{answer}: {result}")
             
         elif action == "Error":
             solution = response.get("solution", "Please try again with a clearer prompt.")
@@ -71,4 +83,3 @@ if __name__ == '__main__':
         asyncio.run(main())
     except KeyboardInterrupt:
         print('Exit')
-    
