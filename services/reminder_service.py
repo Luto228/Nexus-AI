@@ -1,6 +1,6 @@
 import aiosqlite
 
-DB_PATH = 'reminder.db'
+DB_PATH = 'data/reminder.db'
 
 async def init_db():
     async with aiosqlite.connect(DB_PATH) as db:
