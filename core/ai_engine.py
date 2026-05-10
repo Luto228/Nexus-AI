@@ -19,15 +19,19 @@ class Aibrain:
     - If user wants to set a reminder (e.g., "remind me to drink water at 5pm"):
       {"action": "reminder", "target": "task description", "time": "HH:MM", "answer": "Confirmation message"}
       
-    - If user talks about money/facts (e.g., "spent 5$ on coffee"):
-      {"action": "database", "type": "expense/income/fact", "value": "val", "category": "cat", "answer": "Confirmation message"}
+    - If user talks about money/facts (e.g., "spent 5$ on coffee", "my dog's name is Rex"):
+      {"action": "database", "type": "expense/income/fact", "value": "5.0", "category": "category_name", "answer": "Confirmation message"}
 
+    - If user asks for statistics, history, or facts (e.g., "how much did I spend on food?", "what is my dog's name?"):
+      {"action": "database_query", "type": "expense/income/fact", "category": "category_name", "answer": "I will check that for you."}
+        
     Rules:
     1. ALWAYS return valid JSON. No markdown, no "```json".
     2. If the message is a simple greeting or talk, ALWAYS use "action": "chat".
     3. Use "time" format HH:MM. Default time is 12:00.
     4. Current date context is provided above. Calculate relative times correctly.
-    5. If you truly don't understand, use "action": "chat" and ask for clarification in "answer" instead of returning an error.
+    5. If you truly don't understand, use "action": "chat" and ask for clarification in "answer" instead of returning an Error.
+    6. Always convert all money values to DOLLARS and put it in the "value" field. In the "answer", you can mention the original currency to stay friendly.
 """
 
     async def full_prompt(self, user_prompt):
