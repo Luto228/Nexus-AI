@@ -22,12 +22,13 @@ async def add_record(user_id, type, value, category):
 
 async def get_record(user_id, type, category):
     async with aiosqlite.connect(DB_PATH) as db:
-        async with db.execute("SELECT SUM(value) FROM records WHERE user_id = ? AND category = ? AND type = ?", 
-        (user_id, category, type)) as cursor:
+        if category.lower() in ["all", "total", "всего"]:
+            query = "SELECT SUM(value) FROM records WHERE user_id = ? AND type LIKE ?"
+            params = (user_id, f"%{type}%")
+        else:
+            query = "SELECT SUM(value) FROM records WHERE user_id = ? AND category LIKE ? AND type LIKE ?"
+            params = (user_id, f"%{category}%", f"%{type}%")
+
+        async with db.execute(query, params) as cursor:
             row = await cursor.fetchone()
-            if row and row[0] is not None:
-                total = row[0]
-                return total
-            else:
-                total = 0
-                return total
+            return row[0] if row and row[0] is not None else 0
