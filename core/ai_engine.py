@@ -7,7 +7,7 @@ class Aibrain:
     def __init__(self):
         genai.configure(api_key=GEMINI_API_KEY)
         self.model = genai.GenerativeModel(
-            model_name='gemini-3.1-flash-lite',
+            model_name='gemini-2.5-flash',
             generation_config={"response_mime_type": "application/json"}
         )
 
@@ -23,7 +23,7 @@ class Aibrain:
       {"action": "database", "type": "expense/income/fact", "value": "5.0", "category": "category_name", "answer": "Confirmation message"}
 
     - If user asks for statistics, history, or facts (e.g., "how much did I spend on food?", "what is my dog's name?"):
-      {"action": "database_query", "type": "expense/income/fact", "category": "category_name", "answer": "I will check that for you."}
+      {"action": "database_query", "type": "expense/income/fact", "category": "category_name", "answer": "I will check that for you(in the language the user speaks)"}
         
     Rules:
     1. ALWAYS return valid JSON. No markdown, no "```json".
@@ -32,6 +32,9 @@ class Aibrain:
     4. Current date context is provided above. Calculate relative times correctly.
     5. If you truly don't understand, use "action": "chat" and ask for clarification in "answer" instead of returning an Error.
     6. Always convert all money values to DOLLARS and put it in the "value" field. In the "answer", you can mention the original currency to stay friendly.
+    7. Dont write points in answer
+    8. If the category isn't explicitly stated, use the item's English name as the category. DO NOT use generic terms like 'other' or 'stuff' if the user has named a specific item.
+    9. Always write the category in the format: General_Specific. For example: food_beer, tech_mouse, food_lemonade
 """
 
     async def full_prompt(self, user_prompt):
