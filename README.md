@@ -2,38 +2,42 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Made%20with-Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/Status-Project-blueviolet?style=for-the-badge" alt="Status">
+  <img src="https://img.shields.io/badge/Status-In%20Progress-blueviolet?style=for-the-badge" alt="Status">
   <img src="https://img.shields.io/badge/API-Gemini-orange?style=for-the-badge" alt="Gemini API">
 </p>
 
 ## Description
-Nexus-AI is a Python-based AI project. Right now, only the brain — the core AI engine — is implemented. This version is focused on the logic and reasoning layer of the system.
+Nexus-AI is a Python-based Telegram assistant powered by the Gemini API. The project combines an AI prompt engine with reminder scheduling and basic database persistence.
 
 ## Current State
-- **Implemented:** core AI engine (the brain), chat functionality, reminder scheduling
-- **Working:** The bot can understand and respond to chat messages and create reminders from your request
-- **Not implemented yet:** database persistence and memory handling
+- AI prompt engine implemented in `core/ai_engine.py`
+- Telegram bot interface implemented in `main.py`
+- Reminder storage and notification service implemented in `services/reminder_service.py`
+- Database persistence implemented in `services/database_service.py`
+- Basic message handling and action routing for chat, reminders, and record storage
 
-## Next Update
-- Enhanced reminder functionality and reminder parsing
-- Database integration for data persistence
+## Known Limitations
+- Conversational memory is not yet implemented
+- The AI prompt format relies on valid JSON output from Gemini
+- User-facing error handling is minimal
 
-## Future Updates
-- **Remember and Remind:** If you tell the bot to remember something, it will store the data and remind you at the right time
-- **Expense Tracking:** If you tell the bot you spent an amount, it will remember that expense. Later, if you ask how much you have spent, it will answer correctly
+## Getting Started
+1. Install dependencies (example):
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Configure `config/env.py` with your `BOT_TOKEN` and `GEMINI_API_KEY`.
+3. Run the bot:
+   ```bash
+   python main.py
+   ```
 
-> [!NOTE]
-> The current release only includes the AI core. The rest of the application interface and storage logic are planned for later updates.
-
-> [!TIP]
-> Focus on building the interaction layer after the core is stable. That makes it easier to connect message handling and memory storage later.
-
-## Example Roadmap
-- Phase 1: core engine only
-- Phase 2: working bot with input/output messaging
-- Phase 3: conversational memory and reminders
-- Phase 4: expense tracking and query responses
+## Planned Improvements
+- Add structured conversational memory and long-term context
+- Improve prompt validation and fallback handling
+- Expand expense and fact query support
+- Add a clean user interface or command layer
 
 ---
 
-*Built with Python and future AI features in mind.*
+*This README now reflects the current implementation and removes outdated completion claims.*
