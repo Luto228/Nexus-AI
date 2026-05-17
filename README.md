@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Made%20with-Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/Status-In%20Progress-blueviolet?style=for-the-badge" alt="Status">
+  <img src="https://img.shields.io/badge/Status-Done-green?style=for-the-badge" alt="Status">
   <img src="https://img.shields.io/badge/API-Gemini-orange?style=for-the-badge" alt="Gemini API">
 </p>
 
